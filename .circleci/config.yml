@@ -20,10 +20,12 @@ jobs:
   print_hello:
     docker:
       - image: cimg/base:stable
+    environment:
+      NAME: "Isaac Kinuthia"
     steps:
       - run:
           name: "Say hello"
-          command: "echo hello"
+          command: "echo ${NAME}"
   print_world:
     docker:
       - image: cimg/base:stable
