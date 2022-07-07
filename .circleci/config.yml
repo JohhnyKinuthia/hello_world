@@ -25,7 +25,7 @@ jobs:
     steps:
       - run:
           name: "Say hello"
-          command: "echo ${NAME}"
+          command: "echo Hello ${NAME}"
   print_world:
     docker:
       - image: cimg/base:stable
