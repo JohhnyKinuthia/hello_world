@@ -5,9 +5,10 @@ version: 2.1
 commands:
   print_pipeline_id:
     description: "Print the current workflow ID from environment variables"
-    workflow_id:
-      type: string
-      default: ${CIRCLE_WORKFLOW_ID}
+    parameters:
+      workflow_id:
+        type: string
+        default: ${CIRCLE_WORKFLOW_ID}
     steps:
       - run: echo "The current workflow ID is << parameter.workflow_id >>"
 # Define a job to be invoked later in a workflow.
