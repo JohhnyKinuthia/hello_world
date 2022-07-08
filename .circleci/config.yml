@@ -17,22 +17,30 @@ jobs:
       - run:
           name: "Say hello"
           command: "echo Hakuna, Matata!"
-  print_hello:
+  save_hello_world_output:
     docker:
       - image: cimg/base:stable
     environment:
-      NAME: "Isaac Kinuthia"
+      OUTPUT: "CIRCLE CI ROCKS!"
     steps:
+      - checkout
       - run:
-          name: "Say hello"
-          command: "echo Hello ${NAME}"
-  print_world:
+          name: "Save to Workspace"
+          command: "echo ${OUTPUT} >> output.txt"
+      - persist_to_workspace:
+          root: /tmp/rocks
+          paths:
+            - output.txt
+
+  print_output_file:
     docker:
       - image: cimg/base:stable
     steps:
+      - attach_workspace:
+          at: /tmp/rocks
       - run:
-          name: "Say world"
-          command: "echo My pipeline id is << pipeline.id >> and my git branch is << pipeline.git.branch >>."
+          name: "Print File"
+          command: "cat output.txt"
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
