@@ -28,7 +28,7 @@ jobs:
           name: "Save to Workspace"
           command: "echo ${OUTPUT} >> output.txt"
       - persist_to_workspace:
-          root: /tmp/rocks
+          root: ~/
           paths:
             - output.txt
 
@@ -37,7 +37,7 @@ jobs:
       - image: cimg/base:stable
     steps:
       - attach_workspace:
-          at: /tmp/rocks
+          at: ~/
       - run:
           name: "Print File"
           command: "cat output.txt"
