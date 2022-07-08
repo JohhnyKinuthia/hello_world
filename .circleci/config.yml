@@ -2,6 +2,14 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
+commands:
+  print_pipeline_id:
+    description: "Print the current workflow ID from environment variables"
+    workflow_id:
+      type: string
+      default: ${CIRCLE_WORKFLOW_ID}
+    steps:
+      - run: echo "The current workflow ID is << parameter.workflow_id >>"
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
@@ -13,42 +21,10 @@ jobs:
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
-      - checkout
-      - run:
-          name: "Say hello"
-          command: "echo Hakuna, Matata!"
-  save_hello_world_output:
-    docker:
-      - image: cimg/base:stable
-    working_directory: /tmp/rocks/
-    environment:
-      OUTPUT: "CIRCLE CI ROCKS!"
-    steps:
-      - checkout
-      - run:
-          name: "Save to Workspace"
-          command: echo ${OUTPUT} >> output.txt
-      - persist_to_workspace:
-          root: /tmp/rocks/
-          paths:
-            - output.txt
-
-  print_output_file:
-    docker:
-      - image: cimg/base:stable
-    working_directory: /tmp/rocks/
-    steps:
-      - attach_workspace:
-          at: /tmp/rocks/
-      - run:
-          name: "Print File"
-          command: "cat output.txt"
+      - print_pipeline_id
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   say-hello-workflow:
     jobs:
-      - save_hello_world_output
-      - print_output_file:
-          requires:
-            - save_hello_world_output
+      - say_hello
