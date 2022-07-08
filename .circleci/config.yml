@@ -27,7 +27,7 @@ jobs:
       - checkout
       - run:
           name: "Save to Workspace"
-          command: echo ${OUTPUT} >> ~/output.txt
+          command: echo ${OUTPUT} >> output.txt
       - persist_to_workspace:
           root: /tmp/rocks/
           paths:
@@ -36,6 +36,7 @@ jobs:
   print_output_file:
     docker:
       - image: cimg/base:stable
+    working_directory: /tmp/rocks/
     steps:
       - attach_workspace:
           at: /tmp/rocks/
