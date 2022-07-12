@@ -77,4 +77,4 @@ workflows:
               only:
                 - circleci-project-setup
           requires:
-            - create_infrastructure
+            - get_ip_addresses
