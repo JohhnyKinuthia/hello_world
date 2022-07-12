@@ -1,0 +1,9 @@
+---
+- name: Exercise for setting up an EC2 instance on AWS
+  hosts: aws
+  remote_user: ubuntu
+  become_user: root
+  become: true
+  become_method: sudo
+  roles:
+    - setup

@@ -1,13 +1,15 @@
 # Use the latest 2.1 version of CircleCI pipeline process engine.
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
-
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
-jobs:
-  create_infrastructure:
+executors:
+  aws-executor:
     docker:
       - image: amazon/aws-cli
+jobs:
+  create_infrastructure:
+    executor: aws-executor
     steps:
       - checkout
       - run:
@@ -17,9 +19,55 @@ jobs:
               --template-file template.yml \
               --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
               --region us-east-1
+  get_ip_addresses:
+    executor: aws-executor
+    working_directory: /tmp/ansible
+    steps:
+      - run:
+          name: Get IP address of EC2 instances
+          command: |
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text >> inventory.cfg
+      - persist_to_workspace:
+          root: /tmp/ansible/
+          paths:
+            - inventory.cfg
+  configure_infrastructure:
+    docker:
+      - image: cimg/python:3.8\
+    working_directory: /tmp/ansible
+    steps:
+      - attach_workspace:
+          at: /tmp/ansible/
+      - add_ssh_keys:
+          fingerprints:
+            - "2a:cd:12:a2:74:23:81:3c:98:cf:da:84:fd:9b:41:06"
+      - run:
+          name: Install ansible
+          command: |
+            sudo apt-get update
+            sudo apt-get install software-properties-common
+            sudo apt-add-repository --yes --update ppa:ansible/ansible
+            sudo apt-get install ansible
+      - run:
+          name: Configure server
+          command: |
+            ansible-playbook -i inventory.cfg playbook.yml
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   say-hello-workflow:
     jobs:
-      - create_infrastructure
+      - create_infrastructure:
+          filters:
+            branches:
+              only:
+                - circleci-project-setup
+      - configure_infrastructure:
+          filters:
+            branches:
+              only:
+                - circleci-project-setup
+          requires:
+            - create_infrastructure
