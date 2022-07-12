@@ -34,6 +34,7 @@ jobs:
       - image: cimg/python:3.8
     working_directory: /tmp/ansible
     steps:
+      - checkout
       - attach_workspace:
           at: /tmp/ansible/
       - add_ssh_keys:
@@ -60,17 +61,10 @@ workflows:
             branches:
               only:
                 - circleci-project-setup
-      - get_ip_addresses:
-          filters:
-            branches:
-              only:
-                - circleci-project-setup
-          requires:
-            - create_infrastructure
       - configure_infrastructure:
           filters:
             branches:
               only:
                 - circleci-project-setup
           requires:
-            - get_ip_addresses
+            - create_infrastructure
