@@ -60,20 +60,25 @@ jobs:
             export ANSIBLE_HOST_KEY_CHECKING=False
             cat inventory.cfg
             ansible-playbook -i inventory.cfg playbook.yml
+  smoke_test:
+    docker:
+      - image: alpine:latest
+    steps:
+      - run: apk add --update curl
+      - run:
+          name: smoke test
+          command: |
+            URL="https://blog.udacity.com/"
+            # Test if website exists
+            if curl -s --head ${URL} 
+            then
+              return 0
+            else
+              return 1
+            fi
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   say-hello-workflow:
     jobs:
-      - create_infrastructure:
-          filters:
-            branches:
-              only:
-                - circleci-project-setup
-      - configure_infrastructure:
-          filters:
-            branches:
-              only:
-                - circleci-project-setup
-          requires:
-            - create_infrastructure
+      - smoke_test
