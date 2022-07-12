@@ -10,7 +10,7 @@ executors:
 jobs:
   create_infrastructure:
     executor: aws-executor
-    working_directory: /tmp/ansible
+    working_directory: /tmp/ansible/
     steps:
       - checkout
       - run:
@@ -37,7 +37,7 @@ jobs:
   configure_infrastructure:
     docker:
       - image: cimg/python:3.8
-    working_directory: /tmp/ansible
+    working_directory: /tmp/ansible/
     steps:
       - checkout
       - attach_workspace:
