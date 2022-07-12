@@ -37,4 +37,4 @@
 
 - name: "start the web server"
   shell: "pm2 start ~/web/index.js -f"
-  register: pm2_out
+  register: pm2_output
