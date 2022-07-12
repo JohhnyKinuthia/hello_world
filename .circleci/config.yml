@@ -20,7 +20,8 @@ jobs:
               --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
               --region us-east-1
   get_ip_addresses:
-    executor: aws-executor
+    docker:
+      - image: cimg/base:stable
     working_directory: /tmp/ansible
     steps:
       - run:
