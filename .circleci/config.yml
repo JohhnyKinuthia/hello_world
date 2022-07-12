@@ -27,7 +27,6 @@ jobs:
       - run:
           name: Get IP address of EC2 instances
           command: |
-            export ANSIBLE_HOST_KEY_CHECKING=False
             echo "[aws]" >> inventory.cfg
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
@@ -58,6 +57,7 @@ jobs:
       - run:
           name: Configure server
           command: |
+            export ANSIBLE_HOST_KEY_CHECKING=False
             cat inventory.cfg
             ansible-playbook -i inventory.cfg playbook.yml
 # Invoke jobs via workflows
