@@ -73,8 +73,7 @@ jobs:
             cat inventory.cfg
             ansible-playbook -i inventory.cfg playbook.yml
   smoke_test:
-    docker:
-      - image: alpine:latest
+    executor: aws-executor
     steps:
       - run: apk add --update curl
       - run:
