@@ -64,6 +64,13 @@ workflows:
             branches:
               only:
                 - circleci-project-setup
+      - get_ip_addresses:
+          filters:
+            branches:
+              only:
+                - circleci-project-setup
+          requires:
+            - create_infrastructure
       - configure_infrastructure:
           filters:
             branches:
