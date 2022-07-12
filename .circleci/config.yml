@@ -22,7 +22,7 @@ commands:
 jobs:
   create_infrastructure:
     executor: aws-executor
-    working_directory: /tmp/ansible/
+    # working_directory: /tmp/ansible/
     steps:
       - checkout
       - run:
@@ -36,18 +36,18 @@ jobs:
               --template-file template.yml \
               --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
               --region us-east-1
-      - run:
-          name: Get IP address of EC2 instances
-          command: |
-            echo "[aws]" >> inventory.cfg
-            aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text >> inventory.cfg
-            cat inventory.cfg
-      - persist_to_workspace:
-          root: /tmp/ansible/
-          paths:
-            - inventory.cfg
+      # - run:
+      #     name: Get IP address of EC2 instances
+      #     command: |
+      #       echo "[aws]" >> inventory.cfg
+      #       aws ec2 describe-instances \
+      #         --query 'Reservations[*].Instances[*].PublicIpAddress' \
+      #         --output text >> inventory.cfg
+      #       cat inventory.cfg
+      # - persist_to_workspace:
+      #     root: /tmp/ansible/
+      #     paths:
+      #       - inventory.cfg
   configure_infrastructure:
     docker:
       - image: cimg/python:3.8
