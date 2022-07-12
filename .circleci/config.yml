@@ -10,6 +10,7 @@ executors:
 jobs:
   create_infrastructure:
     executor: aws-executor
+    working_directory: /tmp/ansible
     steps:
       - checkout
       - run:
