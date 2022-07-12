@@ -28,7 +28,8 @@ jobs:
           name: Get IP address of EC2 instances
           command: |
             echo "[defaults]" > inventory.cfg
-            echo "host_key_checking = false" >> inventory.cfg
+            echo "host_key_checking=false" >> inventory.cfg
+            echo "" >> inventory.cfg
             echo "[aws]" >> inventory.cfg
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
