@@ -20,6 +20,59 @@ commands:
             aws cloudformation delete-stack \
              --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
 jobs:
+  create_and_deploy_front_end:
+    executor: aws-executor
+    steps:
+      - checkout
+      - run:
+          name: Execute bucket.yml - Create Cloudformation Stack
+          command: |
+            aws cloudformation deploy \
+              --template-file bucket.yml \
+              --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7}
+              --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
+      - run: aws s3 sync . s3://mybucket-${CIRCLE_WORKFLOW_ID:0:7} --delete
+  get_last_deployment_id:
+    executor: aws-executor
+    working_directory: ~/
+    steps:
+      - checkout
+      - run: yum install -y tar gzip
+      - run:
+          name: Fetch and save the old pipeline ID (bucket name) responsible for the last release
+          command: |
+            aws cloudformation \
+              list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
+              --no-paginate --output text > ~/textfile.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - textfile.txt
+  promote_to_production:
+    executor: aws-executor
+    steps:
+      - checkout
+      - run:
+          name: Execute cloudfront.yml
+          command: |
+            aws cloudformation deploy \
+              --template-file cloudfront.yml \
+              --stack-name production-distro \
+              --parameter-overrides PipelineID="mybucket-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=udapeople
+  clean_up_old_front_end:
+    executor: aws-executor
+    working_directory: ~/
+    steps:
+      - checkout
+      - run: yum install -y tar gzip
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Destory the previous S3 bucket and CloudFormation stack.
+          command: |
+            export OldBucketID=$(cat ~/textfile.txt)
+            aws s3 rm "s3://${OldBucketID}" --recursive
   create_infrastructure:
     executor: aws-executor
     # working_directory: /tmp/ansible/
@@ -86,7 +139,12 @@ jobs:
 workflows:
   say-hello-workflow:
     jobs:
-      - create_infrastructure
-      - smoke_test:
+      - create_and_deploy_front_end
+      - promote_to_production:
           requires:
-            - create_infrastructure
+            - create_and_deploy_front_end
+      - get_last_deployment_id
+      - clean_up_old_front_end:
+          requires:
+            - get_last_deployment_id
+            - promote_to_production
